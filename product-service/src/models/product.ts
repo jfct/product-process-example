@@ -6,6 +6,7 @@ export interface IProduct extends Document {
     description: string;
     price: number;
     reviewList: IReview[];
+    averageRating: number;
 }
 
 const ProductSchema: Schema = new Schema<IProduct>({
@@ -13,8 +14,21 @@ const ProductSchema: Schema = new Schema<IProduct>({
     description: { type: String, required: true },
     price: { type: Number, required: true },
     reviewList: { type: [ReviewSchema], required: true },
+}, {
+    toJSON: { virtuals: true },
+    toObject: { virtuals: true }
 })
 
 const Product: Model<IProduct> = model<IProduct>('Product', ProductSchema);
+
+ProductSchema.virtual('averageRating').get(function (this: IProduct) {
+    if (this.reviewList.length === 0) {
+        return 0;
+    }
+
+    // This assumes that the reviews have been populated
+    const sum = this.reviewList.reduce((acc: number, review: IReview) => acc + review.rating, 0);
+    return sum / this.reviewList.length;
+});
 
 export default Product;
