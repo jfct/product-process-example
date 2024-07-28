@@ -1,7 +1,7 @@
 {
-  "name": "product-process-example",
+  "name": "review-service",
   "version": "1.0.0",
-  "description": "small example of a product &amp; review api",
+  "description": "",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
@@ -13,8 +13,6 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "@commitlint/cli": "^19.3.0",
-    "@commitlint/config-conventional": "^19.2.2",
     "ts-node-dev": "^2.0.0",
     "typescript": "^5.5.4"
   },
