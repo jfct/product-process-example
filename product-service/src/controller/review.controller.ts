@@ -1,7 +1,11 @@
 import { Request, Response } from "express";
+import ReviewService from "../services/review.service";
 
 class ReviewController {
+    private reviewService: ReviewService
+
     constructor() {
+        this.reviewService = new ReviewService();
     }
 
     public async createReview(req: Request, res: Response) {

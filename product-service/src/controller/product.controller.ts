@@ -1,7 +1,11 @@
 import { Request, Response } from "express";
+import ProductService from "../services/product.service";
 
 class ProductController {
+    private productService: ProductService;
+
     constructor() {
+        this.productService = new ProductService()
     }
 
     public async createProduct(req: Request, res: Response) {
