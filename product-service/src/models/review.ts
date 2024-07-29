@@ -1,4 +1,4 @@
-import mongoose, { Document, Model, Schema } from "mongoose";
+import { Document, Model, model, Schema } from "mongoose";
 
 export interface IReview extends Document {
     firstName: string;
@@ -14,6 +14,6 @@ export const ReviewSchema: Schema = new Schema<IReview>({
     rating: { type: Number, required: true }
 })
 
-const Review: Model<IReview> = mongoose.models.Review || mongoose.model<IReview>('Product', ReviewSchema);
+const Review: Model<IReview> = model<IReview>('Review', ReviewSchema);
 
 export default Review;
