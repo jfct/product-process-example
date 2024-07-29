@@ -1,4 +1,4 @@
-import { Model, model, Schema } from "mongoose";
+import mongoose, { model, Model, Schema } from "mongoose";
 import { IReview, ReviewSchema } from "./review";
 
 export interface IProduct extends Document {
@@ -19,8 +19,6 @@ const ProductSchema: Schema = new Schema<IProduct>({
     toObject: { virtuals: true }
 })
 
-const Product: Model<IProduct> = model<IProduct>('Product', ProductSchema);
-
 ProductSchema.virtual('averageRating').get(function (this: IProduct) {
     if (this.reviewList.length === 0) {
         return 0;
@@ -30,5 +28,7 @@ ProductSchema.virtual('averageRating').get(function (this: IProduct) {
     const sum = this.reviewList.reduce((acc: number, review: IReview) => acc + review.rating, 0);
     return sum / this.reviewList.length;
 });
+
+const Product: Model<IProduct> = mongoose.models.Product || model<IProduct>('Product', ProductSchema);
 
 export default Product;

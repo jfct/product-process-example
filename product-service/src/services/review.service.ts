@@ -1,10 +1,12 @@
+import { CreateReviewDto } from "../models/dto";
+
 class ReviewService {
     constructor() { }
 
-    public async create() { }
-    public async get() { }
-    public async update() { }
-    public async delete() { }
+    public async create(review: CreateReviewDto) { }
+    public async get(id: string) { }
+    public async update(id: string, payload: Partial<CreateReviewDto>) { }
+    public async delete(id: string) { }
 
     public async getList() { }
 }
