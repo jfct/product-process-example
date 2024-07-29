@@ -5,8 +5,10 @@ services:
       dockerfile: Dockerfile
     ports:
       - "3000:3000"
+    env_file:
+      - ./.env
     environment:
-      - MONGODB_URI=mongodb://mongodb:27017/product_db
+      - MONGODB_URI=mongodb://admin:password@mongodb:27017/product_db
       - REDIS_URL=redis://redis:6379
       - QUEUE_HOST=redis://redis:6379
     depends_on:
@@ -17,8 +19,10 @@ services:
     build:
       context: ./review-service
       dockerfile: Dockerfile
+    env_file:
+      - ./.env
     environment:
-      - MONGODB_URI=mongodb://mongodb:27017/product_db
+      - MONGODB_URI=mongodb://admin:password@mongodb:27017/product_db
       - REDIS_URL=redis://redis:6379
       - QUEUE_HOST=redis://redis:6379
     depends_on:
@@ -29,8 +33,10 @@ services:
     build:
       context: ./review-service
       dockerfile: Dockerfile
+    env_file:
+      - ./.env
     environment:
-      - MONGODB_URI=mongodb://mongodb:27017/product_db
+      - MONGODB_URI=mongodb://admin:password@mongodb:27017/product_db
       - REDIS_URL=redis://redis:6379
       - QUEUE_HOST=redis://redis:6379
     depends_on:
@@ -38,11 +44,24 @@ services:
       - redis
 
   mongodb:
-    image: mongo:latest
+    image:  mongo:4.4.17-focal
+    container_name: mongodb
     ports:
-      - "27017:27017"
-    volumes:
-      - mongodb_data:/data/db
+      - 27017:27017
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=admin
+      - MONGO_INITDB_ROOT_PASSWORD=password
+
+  mongo-express:
+    image: mongo-express:0.54.0
+    restart: always
+    container_name: mongo-express
+    ports:
+      - 8081:8081
+    environment:
+      - ME_CONFIG_MONGODB_ADMINUSERNAME=admin
+      - ME_CONFIG_MONGODB_ADMINPASSWORD=password
+      - ME_CONFIG_MONGODB_SERVER=mongodb
 
   redis:
     image: redis:latest
