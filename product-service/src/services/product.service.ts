@@ -1,4 +1,4 @@
-import { CreateProductDto } from "../models/dto";
+import { CreateProductDto } from "../dto/model.dto";
 import Product, { IProduct } from "../models/product";
 
 
@@ -11,22 +11,22 @@ class ProductService {
     }
 
     public async get(id: string): Promise<IProduct | null> {
-        return await Product.findById(id).populate('reviewList').exec();
+        return Product.findOne({ _id: id, deleted: false }).populate('reviewList').exec();
     }
 
     public async update(id: string, payload: Partial<CreateProductDto>): Promise<IProduct | null> {
         // Return the updated (new:true)
-        return await Product.findByIdAndUpdate(id, payload, { new: true }).exec();
+        return await Product.findOneAndUpdate({ _id: id, deleted: false }, payload, { new: true }).exec();
     }
 
     public async delete(id: string): Promise<IProduct | null> {
-        return Product.findByIdAndDelete(id).exec();
+        return Product.findOneAndUpdate({ _id: id, deleted: false }, { deleted: true }, { new: true }).exec();
     }
 
     public async getList(page: number, limit: number) {
         // Skip X elements per page
         const skip = (page - 1) * limit;
-        return Product.find().skip(skip).limit(limit).exec();
+        return Product.find({ deleted: false }).skip(skip).limit(limit).exec();
     }
 }
 

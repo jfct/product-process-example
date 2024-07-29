@@ -1,23 +1,45 @@
-import mongoose, { model, Model, Schema } from "mongoose";
+import { model, Model, Schema } from "mongoose";
 import { IReview, ReviewSchema } from "./review";
 
 export interface IProduct extends Document {
     name: string;
     description: string;
     price: number;
+    deleted: boolean;
     reviewList: IReview[];
     averageRating: number;
 }
 
 const ProductSchema: Schema = new Schema<IProduct>({
-    name: { type: String, required: true },
-    description: { type: String, required: true },
-    price: { type: Number, required: true },
-    reviewList: { type: [ReviewSchema], required: true },
+    name: {
+        type: String,
+        required: true,
+        unique: true
+    },
+    description: {
+        type: String,
+        required: true
+    },
+    price: {
+        type: Number,
+        required: true
+    },
+    deleted: {
+        type: Boolean,
+        required: true,
+        default: false
+    },
+    reviewList: {
+        type: [ReviewSchema],
+        required: false,
+        nullable: true
+    },
 }, {
     toJSON: { virtuals: true },
     toObject: { virtuals: true }
 })
+
+ProductSchema.index({ name: 1 }, { unique: true });
 
 ProductSchema.virtual('averageRating').get(function (this: IProduct) {
     if (this.reviewList.length === 0) {
@@ -29,6 +51,6 @@ ProductSchema.virtual('averageRating').get(function (this: IProduct) {
     return sum / this.reviewList.length;
 });
 
-const Product: Model<IProduct> = mongoose.models.Product || model<IProduct>('Product', ProductSchema);
+const Product: Model<IProduct> = model<IProduct>('Product', ProductSchema);
 
 export default Product;

@@ -1,6 +1,6 @@
 import { NextFunction, Response } from "express";
 import { validationResult } from "express-validator";
-import { CreateProductDto } from "../models/dto";
+import { CreateProductDto } from "../dto/model.dto";
 import ProductService from "../services/product.service";
 import { IdParams, QueryParams, RequestWithBody, RequestWithParams, RequestWithQuery } from "../types/types";
 
@@ -35,7 +35,7 @@ class ProductController {
         try {
             const deletedProduct = await this.productService.delete(req.params.id);
             if (!deletedProduct) {
-                return res.status(404).json({ message: 'Product not found' });
+                return res.status(404).json({ status: 'error', message: 'Product not found' });
             }
             res.status(201).json(deletedProduct);
         } catch (error) {
@@ -52,7 +52,7 @@ class ProductController {
         try {
             const updatedProduct = await this.productService.update(req.params.id, req.body);
             if (!updatedProduct) {
-                return res.status(404).json({ message: 'Product not found' });
+                return res.status(404).json({ status: 'error', message: 'Product not found' });
             }
             res.status(201).json(updatedProduct);
         } catch (error) {
@@ -63,7 +63,7 @@ class ProductController {
     public async listProducts(req: RequestWithQuery<QueryParams>, res: Response, next: NextFunction) {
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
-            return res.status(400).json({ error: errors.array() });
+            return res.status(400).json({ status: 'error', error: errors.array() });
         }
 
         try {
@@ -87,7 +87,7 @@ class ProductController {
         try {
             const product = await this.productService.get(req.params.id);
             if (!product) {
-                return res.status(404).json({ message: 'Product not found' });
+                return res.status(404).json({ status: 'error', message: 'Product not found' });
             }
 
             res.status(201).json(product);

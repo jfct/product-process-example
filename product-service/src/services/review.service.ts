@@ -1,4 +1,4 @@
-import { CreateReviewDto } from "../models/dto";
+import { CreateReviewDto } from "../dto/model.dto";
 
 class ReviewService {
     constructor() { }
