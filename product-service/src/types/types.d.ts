@@ -26,3 +26,8 @@ export interface RequestWithParams<T> extends Request {
     params: T
 }
 
+export interface RequestWithBodyAndParams<T, U> extends Request {
+    body: T,
+    params: U
+}
+
