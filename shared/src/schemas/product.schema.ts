@@ -1,11 +1,21 @@
-import { Document, model, Model, ObjectId, Schema } from "mongoose";
-import { ProductDto } from "../dto/model.dto";
+import { Document, Schema } from "mongoose";
+import { ProductDto } from "../dtos/model.dto";
+import { IReview } from "./review.schema";
 
 export interface IProduct extends Document, ProductDto {
+    _id: string;
     deleted: boolean;
-    reviews: ObjectId[];
+};
+
+export interface IProductPopulated extends Document, ProductDto {
+    deleted: boolean;
+    reviews: IReview[];
     averageRating: number;
 };
+
+export interface IProductRating extends Omit<IProduct, 'reviews'> {
+    averageRating: number;
+}
 
 export const ProductSchema: Schema = new Schema<IProduct>({
     name: {
@@ -26,11 +36,13 @@ export const ProductSchema: Schema = new Schema<IProduct>({
         required: true,
         default: false
     },
-    reviews: {
-        type: [Schema.Types.ObjectId],
-        ref: 'Review',
-        required: false,
-    },
+    averageRating: {
+        type: Number,
+        required: true,
+        default: 0,
+        min: 0,
+        max: 5
+    }
 }, {
     toJSON: { virtuals: true },
     toObject: { virtuals: true }
@@ -38,17 +50,9 @@ export const ProductSchema: Schema = new Schema<IProduct>({
 
 ProductSchema.index({ name: 1 }, { unique: true });
 
-ProductSchema.virtual('reviewList', {
+// Virtual field for reviews
+ProductSchema.virtual('reviews', {
     ref: 'Review',
-    localField: 'reviews',
-    foreignField: '_id'
+    localField: '_id',
+    foreignField: 'productId'
 });
-
-ProductSchema.virtual('averageRating').get(function (this: IProduct) {
-    // This should be a retrieval from the review processing service?
-    return 1;
-});
-
-const Product: Model<IProduct> = model<IProduct>('Product', ProductSchema);
-
-export default Product;

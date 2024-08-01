@@ -1,11 +1,15 @@
 import { NextFunction, Request, Response } from "express";
 import mongoose from "mongoose";
+import { CachedProductDto, HttpException, IProductPopulated } from "shared";
+import RedisClient from "shared/dist/clients/redis-client";
+
 import { config } from "./config";
+import Product from "./models/product.model";
 import apiRouter from "./routes";
-import HttpException from "./types/errors/http-exception";
 
 const express = require('express');
 const app = express();
+const redis = new RedisClient();
 
 // Mongoose connection
 mongoose.connect(config.mongodb.uri, {})
@@ -47,9 +51,32 @@ app.use(
     },
 );
 
+// Setup some cached products at start
+initializeCache();
 
 const PORT = process.env.PRODUCT_PORT || 3000;
 app.listen(PORT, () => console.log(`Product-Service running on port ${PORT}`));
 
-
 module.exports = { app };
+
+
+// We get the most recent updated 5 products
+async function initializeCache() {
+    const products = await Product.find<IProductPopulated>()
+        .sort({ updatedAt: -1 })
+        .limit(5)
+        .populate({
+            path: 'reviews'
+        })
+
+    // Format the products for the cache
+    const cachedProductList: CachedProductDto[] = products.map((product: IProductPopulated): CachedProductDto => {
+        return {
+            id: product.id,
+            averageRating: product.averageRating,
+            reviews: product.reviews
+        }
+    })
+    await redis.setUpCache(cachedProductList);
+}
+

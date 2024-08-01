@@ -1,12 +1,12 @@
 services:
   product-service:
     build:
-      context: ./product-service
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: product-service/Dockerfile
     ports:
       - "3000:3000"
     env_file:
-      - ./.env
+      - .env
     environment:
       - MONGODB_URI=mongodb://admin:password@mongodb:27017/product_db
       - REDIS_URL=redis://redis:6379
@@ -15,10 +15,10 @@ services:
       - mongodb
       - redis
 
-  review-processing-service-1:
+  review-service-1:
     build:
-      context: ./review-service
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: review-service/Dockerfile
     env_file:
       - ./.env
     environment:
@@ -29,12 +29,12 @@ services:
       - mongodb
       - redis
 
-  review-processing-service-2:
+  review-service-2:
     build:
-      context: ./review-service
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: ./review-service/Dockerfile
     env_file:
-      - ./.env
+      - .env
     environment:
       - MONGODB_URI=mongodb://admin:password@mongodb:27017/product_db
       - REDIS_URL=redis://redis:6379

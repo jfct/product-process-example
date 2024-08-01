@@ -1,4 +1,4 @@
-class HttpException extends Error {
+export class HttpException extends Error {
     errorCode: number;
     constructor(
         errorCode: number,
@@ -8,5 +8,3 @@ class HttpException extends Error {
         this.errorCode = errorCode;
     }
 }
-
-export default HttpException;
