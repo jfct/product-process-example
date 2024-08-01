@@ -93,7 +93,7 @@ class RedisClient {
 
     public async getProductAverageRating(productId: string): Promise<number> {
         const product = await this.getProduct(productId);
-        return product.averageRating || 0;
+        return product?.averageRating ?? 0;
     }
 
     public async updateProductAverageRating(productId: string, newAverageRating: number) {

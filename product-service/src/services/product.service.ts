@@ -9,8 +9,16 @@ class ProductService extends BaseService<IProduct, CreateProductDto, typeof Prod
         super(Product);
     }
 
-    public async getProductWithRating(id: string): Promise<IProduct | null> {
+    // Cache a product on creation, for convenience at this time
+    public async create(value: CreateProductDto): Promise<IProduct> {
+        const product = new Product(value);
+        const newProduct = await product.save();
+        await this.cacheProduct(newProduct.id);
+        return newProduct;
+    }
 
+
+    public async getProductWithRating(id: string): Promise<IProduct | null> {
         const product = await Product.findOne<IProduct>({ _id: id, deleted: false }).lean();
         if (!product) {
             throw new HttpException(404, 'No product with this Id found');
@@ -21,7 +29,6 @@ class ProductService extends BaseService<IProduct, CreateProductDto, typeof Prod
             ...product,
             averageRating
         }
-
     }
 
     public async delete(id: string): Promise<IProduct | null> {
@@ -73,10 +80,11 @@ class ProductService extends BaseService<IProduct, CreateProductDto, typeof Prod
      * Caches a specific product
      */
     private async cacheProduct(id: string): Promise<CachedProductDto> {
-        const product = await Product.findOne<IProductPopulated>(({ id, deleted: false })).populate({
+        const product = await Product.findOne<IProductPopulated>(({ _id: id, deleted: false })).populate({
             path: 'reviews',
             match: { deleted: false }
         }).exec();
+
         if (!product) {
             throw new HttpException(404, 'No product with this Id found');
         }
