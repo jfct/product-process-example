@@ -4,18 +4,12 @@ import Review from "../models/review.model";
 import BaseService from "./base.service";
 
 class ReviewService extends BaseService<IReview, CreateReviewDto, typeof Review> {
-    private queue: QueueClient = new QueueClient();
-
-    constructor() {
+    constructor(private queue: QueueClient) {
         super(Review);
     }
 
     public async createReviewAndUpdateProduct(payload: CreateReviewDto): Promise<IReview> {
         const review = await this.create(payload);
-        if (!review) {
-            throw new Error('Error creating the review')
-        }
-
         const queueReview: QueueReviewDto = {
             review,
             action: ReviewAction.ADD,
@@ -60,10 +54,9 @@ class ReviewService extends BaseService<IReview, CreateReviewDto, typeof Review>
             action: ReviewAction.DELETE,
             review,
         }
+
         // Add to the queue
-        await this.queue.add(queueReview)
-
-
+        await this.queue.add(queueReview);
 
         return review;
     }
