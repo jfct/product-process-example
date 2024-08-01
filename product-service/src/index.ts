@@ -1,13 +1,12 @@
+import express = require('express');
 import { NextFunction, Request, Response } from "express";
 import mongoose from "mongoose";
 import { CachedProductDto, HttpException, IProductPopulated } from "shared";
 import RedisClient from "shared/dist/clients/redis-client";
-
 import { config } from "./config";
 import Product from "./models/product.model";
 import apiRouter from "./routes";
 
-const express = require('express');
 const app = express();
 const redis = new RedisClient();
 

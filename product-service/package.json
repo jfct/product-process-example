@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "build": "tsc",
+    "build": "tsc && npm run lint",
     "dev": "ts-node-dev --respawn src/index.ts",
     "start": "node dist/index",
     "test": "jest --collectCoverage=false",

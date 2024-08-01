@@ -3,6 +3,9 @@ import { validationResult } from "express-validator";
 import { IdParams, RequestWithBody, RequestWithBodyAndParams, RequestWithParams } from "../types/types";
 
 abstract class BaseController<Dto> {
+    // We use the eslint here because we would have to complicate tenfold the types just because of this service
+    // I do not think it is worth it the complexity to have a type here
+    // eslint-disable-next-line
     protected abstract service: any;
 
     public async create(req: RequestWithBody<Dto>, res: Response, next: NextFunction) {

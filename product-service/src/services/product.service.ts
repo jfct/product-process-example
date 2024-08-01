@@ -42,7 +42,7 @@ class ProductService extends BaseService<IProduct, CreateProductDto, typeof Prod
     public async getReviewsForProduct(id: string): Promise<Pick<IProductPopulated, '_id' | 'averageRating' | 'reviews'> | null> {
         try {
             // Get cached product
-            let cachedProduct = await this.cacheClient.getProduct(id);
+            const cachedProduct = await this.cacheClient.getProduct(id);
 
             // If reviews are empty, cache them
             if (cachedProduct && cachedProduct.reviews.length <= 0) {
