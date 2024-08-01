@@ -2,9 +2,9 @@ import { MongoMemoryServer } from 'mongodb-memory-server';
 import mongoose from 'mongoose';
 import { CreateReviewDto, ReviewAction } from 'shared';
 import QueueClient from 'shared/dist/clients/queue-client';
+import Product from '../models/product.model';
 import Review from '../models/review.model';
 import ReviewService from '../services/review.service';
-
 
 describe('ReviewService', () => {
     let reviewService: ReviewService;
@@ -36,12 +36,18 @@ describe('ReviewService', () => {
 
     describe('createReviewAndUpdateProduct', () => {
         it('should create a review and add it to the queue', async () => {
+            const prod = await Product.create({
+                name: "New prod",
+                description: "It's new",
+                price: 10
+            });
+
             const payload: CreateReviewDto = {
                 firstName: 'John',
                 lastName: 'Doe',
                 review: 'Great product!',
                 rating: 5,
-                productId: new mongoose.Types.ObjectId().toString(),
+                productId: prod.id,
             };
 
             const createdReview = await reviewService.createReviewAndUpdateProduct(payload);
@@ -89,22 +95,25 @@ describe('ReviewService', () => {
         it('should return null if review is not found', async () => {
             const nonExistentId = new mongoose.Types.ObjectId().toString();
             const updatePayload = { firstName: 'Jane' };
-
-            const result = await reviewService.update(nonExistentId, updatePayload);
-
-            expect(result).toBeNull();
+            await expect(reviewService.update(nonExistentId, updatePayload)).rejects.toThrow('No review with that Id found');
             expect(mockQueueClient.add).not.toHaveBeenCalled();
         });
     });
 
     describe('delete', () => {
         it('should mark a review as deleted and add it to the queue', async () => {
+            const prod = await Product.create({
+                name: "New prod 2",
+                description: "It's new",
+                price: 10
+            });
+
             const review = await Review.create({
                 firstName: 'John',
                 lastName: 'Doe',
                 review: 'Great product!',
                 rating: 5,
-                productId: new mongoose.Types.ObjectId(),
+                productId: prod.id,
             });
 
             const deletedReview = await reviewService.delete(review._id.toString());
@@ -120,8 +129,7 @@ describe('ReviewService', () => {
 
         it('should throw an error if review is not found', async () => {
             const nonExistentId = new mongoose.Types.ObjectId().toString();
-
-            await expect(reviewService.delete(nonExistentId)).rejects.toThrow('No review with that Id exists');
+            await expect(reviewService.delete(nonExistentId)).rejects.toThrow('No review with that Id found');
         });
     });
 });

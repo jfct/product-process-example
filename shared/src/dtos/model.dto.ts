@@ -4,7 +4,6 @@ export interface ProductDto {
     name: string;
     description: string;
     price: number;
-    averageRating: number;
 };
 export interface CreateProductDto extends ProductDto { };
 export interface UpdateProductDto extends Partial<CreateProductDto> { };

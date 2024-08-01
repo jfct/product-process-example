@@ -26,7 +26,7 @@ In short here's a picture with how the system is setup:
 
 In terms of infra we have a redis server (that contains a queue, using bullMQ) a MongoDB server, a product-service and a review-service (that can be scaled, by default in the docker-compose I set up 2 instances).
 
-The caching process for products is done at app start. In this method we just cache all the products (together with their averageRating).
+The caching process for products is done at app start. In this method we just cache all the products (together with their averageRating). We store the cache for up to 2 days, you can also change this in the .env with the `CACHE_PERIOD` variable
 
 The process for the reviews is done "Lazy", whenever we check all the reviews for a product or when we do an action on a review, if by chance that product still has no reviews we populate it, if the product has reviews cached we then just update the cache instead.
 By doing this we might be taking some time on retrieving reviews at start, but as the caching is done it will be faster.
@@ -54,7 +54,7 @@ The big one is probably the tests, I have implemented one test file as an exampl
 
 Also adding husky to lint before pre-commit would be a good change, for the whole project (so it catches both services)
 
-In terms of things that could be added, logging feature, load balancing for the workers/review-service
+In terms of things that could be added, logging feature, normalizing error messages, load balancing for the workers/review-service
 
 Implementing a page/limit system for the reviews would also be ideal (with the current cached reviews and the DB reviews for example, at the moments it's just done for the list of products, so whenever you call for the list of reviews for a product you get all of the reviews!
 

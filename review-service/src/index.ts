@@ -19,10 +19,6 @@ mongoose.connect(config.mongodb.uri, {})
         console.error('MongoDB connection error:', error)
     });
 
-if (worker) {
-    console.log('lets go');
-}
-
 // Graceful shutdown
 process.on('SIGTERM', async () => {
     console.log('SIGTERM received, closing worker...');
