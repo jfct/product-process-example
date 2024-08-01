@@ -1,5 +1,15 @@
 # product-process-example
 
+## How to run
+
+To run just 
+
+```bash
+1. Download the repo
+2. Copy .env.example to .env
+3. Run "docker-compose up"
+```
+
 
 ## Project Architecture
 
