@@ -63,18 +63,13 @@ module.exports = { app };
 // We get the most recent updated 5 products
 async function initializeCache() {
     const products = await Product.find<IProductPopulated>()
-        .sort({ updatedAt: -1 })
-        .limit(5)
-        .populate({
-            path: 'reviews'
-        })
 
     // Format the products for the cache
     const cachedProductList: CachedProductDto[] = products.map((product: IProductPopulated): CachedProductDto => {
         return {
             id: product.id,
             averageRating: product.averageRating,
-            reviews: product.reviews
+            reviews: []
         }
     })
     await redis.setUpCache(cachedProductList);

@@ -11,12 +11,6 @@ class ReviewService extends BaseService<IReview, CreateReviewDto, typeof Review>
     }
 
     public async createReviewAndUpdateProduct(payload: CreateReviewDto): Promise<IReview> {
-
-        const productId = payload.productId as string;
-
-        // Create the review
-        // Update the product
-        // Return review
         const review = await this.create(payload);
         if (!review) {
             throw new Error('Error creating the review')
