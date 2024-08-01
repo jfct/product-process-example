@@ -1,11 +1,10 @@
-import { Document, ObjectId, Schema } from "mongoose";
+import { Document, Schema } from "mongoose";
 import { ProductDto } from "../dtos/model.dto";
 import { IReview } from "./review.schema";
 
 export interface IProduct extends Document, ProductDto {
     _id: string;
     deleted: boolean;
-    reviews: ObjectId[];
 };
 
 export interface IProductPopulated extends Document, ProductDto {
@@ -37,11 +36,13 @@ export const ProductSchema: Schema = new Schema<IProduct>({
         required: true,
         default: false
     },
-    reviews: {
-        type: [Schema.Types.ObjectId],
-        ref: 'Review',
-        required: false,
-    },
+    averageRating: {
+        type: Number,
+        required: true,
+        default: 0,
+        min: 0,
+        max: 5
+    }
 }, {
     toJSON: { virtuals: true },
     toObject: { virtuals: true }
@@ -49,12 +50,9 @@ export const ProductSchema: Schema = new Schema<IProduct>({
 
 ProductSchema.index({ name: 1 }, { unique: true });
 
-ProductSchema.virtual('averageRating').get(function (this: IProductPopulated) {
-    if (!this.reviews || this.reviews.length === 0) {
-        return 0;
-    }
-
-    const sum = this.reviews.reduce((acc, review) => acc + review.rating, 0);
-    return sum / this.reviews.length;
+// Virtual field for reviews
+ProductSchema.virtual('reviews', {
+    ref: 'Review',
+    localField: '_id',
+    foreignField: 'productId'
 });
-
