@@ -1,0 +1,135 @@
+{
+    "info": {
+        "name": "product-pass",
+        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    },
+    "item": [
+        {
+            "name": "Product Create",
+            "event": [],
+            "request": {
+                "method": "POST",
+                "header": [],
+                "url": "http://localhost:3000/api/product",
+                "body": {
+                    "mode": "raw",
+                    "raw": "{\n  \"name\": \"New product 8\",\n  \"description\": \"A super product\",\n  \"price\": 2\n}",
+                    "options": {
+                        "raw": {
+                            "language": "json"
+                        }
+                    }
+                }
+            }
+        },
+        {
+            "name": "Product Delete",
+            "event": [],
+            "request": {
+                "method": "DELETE",
+                "header": [],
+                "url": "http://localhost:3000/api/product/66ac0969b71393f71e036ca1"
+            }
+        },
+        {
+            "name": "Product List reviews",
+            "event": [],
+            "request": {
+                "method": "GET",
+                "header": [],
+                "url": "http://localhost:3000/api/product/reviews/66ac09c5b71393f71e036cc5"
+            }
+        },
+        {
+            "name": "Product List",
+            "event": [],
+            "request": {
+                "method": "GET",
+                "header": [],
+                "url": "http://localhost:3000/api/product?page=1&limit=0"
+            }
+        },
+        {
+            "name": "Product Update",
+            "event": [],
+            "request": {
+                "method": "PUT",
+                "header": [],
+                "url": "http://localhost:3000/api/product/66ac0969b71393f71e036ca1",
+                "body": {
+                    "mode": "raw",
+                    "raw": "{\n  \"name\": \"A new name\"\n}",
+                    "options": {
+                        "raw": {
+                            "language": "json"
+                        }
+                    }
+                }
+            }
+        },
+        {
+            "name": "Product",
+            "event": [],
+            "request": {
+                "method": "GET",
+                "header": [],
+                "url": "http://localhost:3000/api/product/66ac0969b71393f71e036ca1"
+            }
+        },
+        {
+            "name": "Review Create",
+            "event": [],
+            "request": {
+                "method": "POST",
+                "header": [],
+                "url": "http://localhost:3000/api/review/",
+                "body": {
+                    "mode": "raw",
+                    "raw": "{\n  \"firstName\": \"John\",\n  \"lastName\": \"Doe\",\n  \"review\": \"I like this alot 2\",\n  \"rating\": 1,\n  \"productId\": \"66ac09c5b71393f71e036cc5\"\n}",
+                    "options": {
+                        "raw": {
+                            "language": "json"
+                        }
+                    }
+                }
+            }
+        },
+        {
+            "name": "Review Delete",
+            "event": [],
+            "request": {
+                "method": "DELETE",
+                "header": [],
+                "url": "http://localhost:3000/api/review/66abff1c3a4df55426bb6ec7"
+            }
+        },
+        {
+            "name": "Review",
+            "event": [],
+            "request": {
+                "method": "GET",
+                "header": [],
+                "url": "http://localhost:3000/api/review/66ac09cdb71393f71e036ccc"
+            }
+        },
+        {
+            "name": "Review Update",
+            "event": [],
+            "request": {
+                "method": "PUT",
+                "header": [],
+                "url": "http://localhost:3000/api/review/66ac0982b71393f71e036cb4",
+                "body": {
+                    "mode": "raw",
+                    "raw": "{\n  \"rating\":\"0\"\n}",
+                    "options": {
+                        "raw": {
+                            "language": "json"
+                        }
+                    }
+                }
+            }
+        }
+    ],
+    "variable": []
+}

@@ -10,6 +10,9 @@ To run just
 3. Run "docker-compose up"
 ```
 
+If you don't want the main services on docker you can change the .env of the redis and mongodb to "localhost" and run with `npm run dev` locally
+
+You also have a postman.collection.json with a JSON of requests that I used (I mainly use Bruno as my client for http requests, I exported as a postman JSON so it should work)
 
 ## Project Architecture
 
