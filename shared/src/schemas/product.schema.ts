@@ -1,11 +1,22 @@
-import { Document, model, Model, ObjectId, Schema } from "mongoose";
-import { ProductDto } from "../dto/model.dto";
+import { Document, ObjectId, Schema } from "mongoose";
+import { ProductDto } from "../dtos/model.dto";
+import { IReview } from "./review.schema";
 
 export interface IProduct extends Document, ProductDto {
+    _id: string;
     deleted: boolean;
     reviews: ObjectId[];
+};
+
+export interface IProductPopulated extends Document, ProductDto {
+    deleted: boolean;
+    reviews: IReview[];
     averageRating: number;
 };
+
+export interface IProductRating extends Omit<IProduct, 'reviews'> {
+    averageRating: number;
+}
 
 export const ProductSchema: Schema = new Schema<IProduct>({
     name: {
@@ -38,17 +49,12 @@ export const ProductSchema: Schema = new Schema<IProduct>({
 
 ProductSchema.index({ name: 1 }, { unique: true });
 
-ProductSchema.virtual('reviewList', {
-    ref: 'Review',
-    localField: 'reviews',
-    foreignField: '_id'
+ProductSchema.virtual('averageRating').get(function (this: IProductPopulated) {
+    if (!this.reviews || this.reviews.length === 0) {
+        return 0;
+    }
+
+    const sum = this.reviews.reduce((acc, review) => acc + review.rating, 0);
+    return sum / this.reviews.length;
 });
 
-ProductSchema.virtual('averageRating').get(function (this: IProduct) {
-    // This should be a retrieval from the review processing service?
-    return 1;
-});
-
-const Product: Model<IProduct> = model<IProduct>('Product', ProductSchema);
-
-export default Product;

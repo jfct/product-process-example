@@ -1,7 +1,8 @@
-import { Document, Model, model, Schema } from "mongoose";
-import { ReviewDto } from "../dto/model.dto";
+import { Document, Schema } from "mongoose";
+import { ReviewDto } from "../dtos/model.dto";
 
 export interface IReview extends Document, ReviewDto {
+    _id: string;
     deleted: boolean;
 }
 
@@ -21,7 +22,3 @@ export const ReviewSchema: Schema = new Schema<IReview>({
         default: false
     },
 })
-
-const Review: Model<IReview> = model<IReview>('Review', ReviewSchema);
-
-export default Review;
