@@ -22,7 +22,6 @@ class ReviewProcessingService {
         }
 
         // Calculate the average rating
-        // We already have this in the virtual too
         const totalRating = product.reviews.reduce((acc, review) => acc + review.rating, 0)
         const newAverageRating = Math.floor((totalRating / product.reviews.length) * 10) / 10;
         return newAverageRating;

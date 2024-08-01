@@ -19,7 +19,7 @@ class RedisClient {
      * Since this is in the shared folder, we receive some products to add to the cache instead of
      * doing it all here
      */
-    public async setUpCache(productList: CachedProductDto[]) {
+    public async setUpCache(productList: CachedProductDto[]): Promise<void> {
         try {
             for (const product of productList) {
                 await this.setProduct(product.id, product);
@@ -28,6 +28,19 @@ class RedisClient {
         } catch (error) {
             console.error('Error during cache set up:', error);
         }
+    }
+
+    public async updateProductReviewList(productId: string, reviews: IReview[]): Promise<CachedProductDto | null> {
+        const cachedProduct = await this.connection.get(productId);
+        if (!cachedProduct) {
+            return null
+        }
+
+        const product: CachedProductDto = JSON.parse(cachedProduct);
+        product.reviews = reviews;
+
+        await this.setProduct(productId, product);
+        return product;
     }
 
     public getConnection() {
@@ -44,18 +57,18 @@ class RedisClient {
     }
 
     public async setProduct(productId: string, product: CachedProductDto): Promise<Boolean> {
-        // Set a limit of 1 week of storage
-        // 604800 is the number of seconds in a week
-        const cachedProduct = await this.connection.set(productId, JSON.stringify(product), 'EX', 604800);
+        // Set a limit of 3 days of storage
+        // 259200 is the number of seconds
+        const cachedProduct = await this.connection.set(productId, JSON.stringify(product), 'EX', process.env.CACHE_PERIOD || 259200);
         return cachedProduct === 'OK' ? true : false;
     }
 
-    public async addReview(productId: string, review: IReview): Promise<Boolean> {
+    public async addReview(productId: string, review: IReview): Promise<CachedProductDto> {
         const product = await this.getProduct(productId);
         product.reviews.push(review);
 
         await this.setProduct(productId, product);
-        return true
+        return product
     }
 
     public async removeReview(productId: string, reviewId: string): Promise<Boolean> {
@@ -68,14 +81,14 @@ class RedisClient {
         return true
     }
 
-    public async editReview(productId: string, reviewId: string, review: IReview): Promise<Boolean> {
+    public async editReview(productId: string, reviewId: string, review: IReview): Promise<CachedProductDto> {
         const product = await this.getProduct(productId);
         product.reviews = product.reviews.map((oldReview) =>
             oldReview._id.toString() === reviewId ? review : oldReview
         );
 
         await this.setProduct(productId, product);
-        return true
+        return product
     }
 
     public async getProductAverageRating(productId: string): Promise<number> {
@@ -88,7 +101,7 @@ class RedisClient {
         product.averageRating = newAverageRating;
 
         await this.setProduct(productId, product);
-        return true;
+        return product;
     }
 }
 

@@ -4,6 +4,7 @@ import { IReview } from "./review.schema";
 
 export interface IProduct extends Document, ProductDto {
     _id: string;
+    averageRating: number;
     deleted: boolean;
 };
 
@@ -12,10 +13,6 @@ export interface IProductPopulated extends Document, ProductDto {
     reviews: IReview[];
     averageRating: number;
 };
-
-export interface IProductRating extends Omit<IProduct, 'reviews'> {
-    averageRating: number;
-}
 
 export const ProductSchema: Schema = new Schema<IProduct>({
     name: {

@@ -1,7 +1,7 @@
 import { param, query } from "express-validator";
 import { ObjectId } from "mongodb";
 
-export const validateObjectId = (id: any) => ObjectId.isValid(id) && (new ObjectId(id)).toString() === id; //true or false
+export const validateObjectId = (id: string) => ObjectId.isValid(id) && (ObjectId.createFromHexString(id)).toString() === id; //true or false
 
 export const listValidation = [
     query('page').default(1).notEmpty().isInt({ min: 1 }).withMessage(`Invalid value (minimum value is 1)`),

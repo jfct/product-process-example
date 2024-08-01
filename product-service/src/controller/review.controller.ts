@@ -2,6 +2,7 @@
 import { NextFunction, Response } from "express";
 import { validationResult } from "express-validator";
 import { CreateReviewDto } from "shared";
+import QueueClient from "shared/dist/clients/queue-client";
 import ReviewService from "../services/review.service";
 import { RequestWithBody } from "../types/types";
 import BaseController from "./controller";
@@ -11,7 +12,7 @@ class ReviewController extends BaseController<CreateReviewDto> {
 
     constructor() {
         super();
-        this.service = new ReviewService();
+        this.service = new ReviewService(new QueueClient());
     }
 
     public async create(req: RequestWithBody<CreateReviewDto>, res: Response, next: NextFunction) {

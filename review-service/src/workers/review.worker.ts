@@ -1,14 +1,17 @@
 import { Job, Worker } from 'bullmq';
 import mongoose from 'mongoose';
 import { IReview, QueueReviewDto, ReviewAction } from 'shared';
+import QueueClient from 'shared/dist/clients/queue-client';
 import RedisClient from 'shared/dist/clients/redis-client';
+import Review from '../models/review.model';
 import ReviewProcessingService from '../services/review-processing.service';
-
-const cacheClient = new RedisClient();
-const reviewProcessing = new ReviewProcessingService();
 
 // Create a singleton worker instance
 let reviewWorker: Worker | undefined;
+
+const cacheClient = new RedisClient();
+const queueClient = new QueueClient();
+const reviewProcessing = new ReviewProcessingService();
 
 function getReviewWorker(): Worker {
     if (!reviewWorker) {
@@ -38,6 +41,13 @@ function getReviewWorker(): Worker {
                         averageRating: newAverageRating
                     })
                 } else {
+                    // If there are no reviews, try to populate from DB
+                    if (cachedProduct.reviews.length <= 0) {
+                        const isPopulated = await populateCachedProductReviews(productId);
+                        if (!isPopulated) {
+                            console.error(`Error populated review list for product ${productId}`);
+                        }
+                    }
                     // Process the action by the queue
                     await processQueueAction(action, productId, review, reviewId);
 
@@ -46,6 +56,7 @@ function getReviewWorker(): Worker {
 
                     console.log(`Updated average rating for product ${productId}: ${newAverageRating}`);
                 }
+
                 return { success: true, productId, newAverageRating };
             } catch (error) {
                 console.error(`Error processing job ${job.id}:`, error);
@@ -64,7 +75,8 @@ function getReviewWorker(): Worker {
             }
         });
 
-        reviewWorker.on('completed', (job: Job) => {
+        reviewWorker.on('completed', async (job: Job) => {
+            await queueClient.clear();
             console.log(`Job ${job.id} completed successfully`);
         });
 
@@ -89,6 +101,12 @@ async function processQueueAction(action: ReviewAction, productId: string, revie
             await cacheClient.removeReview(productId, reviewId);
             break;
     }
+}
+
+async function populateCachedProductReviews(productId: string) {
+    // Check if the reviews are cached, if not, cache them
+    const reviews = await Review.find<IReview>({ productId, deleted: false });
+    return await cacheClient.updateProductReviewList(productId, reviews);
 }
 
 export const worker = getReviewWorker();

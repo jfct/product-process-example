@@ -19,6 +19,11 @@ class QueueClient {
         return job;
     }
 
+    // Cleans the queue for jobs older than 1 minute
+    public async clear() {
+        await this.queue.clean(60000, 1000, 'completed'); // 60000ms = 1 minute, 1000 = max jobs to clean at a time
+    }
+
 }
 
 
