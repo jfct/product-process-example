@@ -40,6 +40,10 @@ In terms of storage, the reference is stored on the review part leaving the prod
 
 ## Possible improvements that were skipped
 
+The big one is probably the tests, I have implemented one test file as an example `review.service.spec.ts`, if this was a full fledged project I would of added more test files for the rest of the services and also in the review-service project
+
+Also adding husky to lint before pre-commit would be a good change, for the whole project (so it catches both services)
+
 In terms of things that could be added, logging feature, load balancing for the workers/review-service
 
 Implementing a page/limit system for the reviews would also be ideal (with the current cached reviews and the DB reviews for example, at the moments it's just done for the list of products, so whenever you call for the list of reviews for a product you get all of the reviews!
