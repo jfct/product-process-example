@@ -1,7 +1,7 @@
 
 import { NextFunction, Response } from "express";
 import { validationResult } from "express-validator";
-import { CreateReviewDto } from "../dto/model.dto";
+import { CreateReviewDto } from "shared";
 import ProductReviewService from "../services/product-review.service";
 import ReviewService from "../services/review.service";
 import { RequestWithBody } from "../types/types";

@@ -1,7 +1,5 @@
-import { UpdateResult } from "mongodb";
-import Product, { IProduct } from "../models/product";
-import Review from "../models/review";
-import HttpException from "../types/errors/http-exception";
+import { HttpException, IProduct } from "shared";
+import Product from "../models/product.model";
 
 /**
  * Since there is some circular dependency it's best to create a new service to deal with the requirement of
@@ -28,9 +26,11 @@ class ProductReviewService {
         return product;
     }
 
-    public async updateReviewsAfterProductRemoved(productId: string): Promise<UpdateResult> {
-        return Review.updateMany({ productId }, { deleted: true });
-    }
+    // TODO:
+    // Not used
+    // public async updateReviewsAfterProductRemoved(productId: string): Promise<UpdateResult> {
+    //     return Review.updateMany({ productId }, { deleted: true });
+    // }
 
     public async updateProductAfterReviewRemoved(productId: string, reviewId: string): Promise<IProduct | null> {
         return Product.findByIdAndUpdate(

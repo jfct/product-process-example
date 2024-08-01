@@ -1,4 +1,4 @@
-import { NextFunction, Request, Response } from "express";
+import { NextFunction, Response } from "express";
 import { validationResult } from "express-validator";
 import { IdParams, RequestWithBody, RequestWithBodyAndParams, RequestWithParams } from "../types/types";
 
@@ -54,7 +54,7 @@ abstract class BaseController<Dto> {
         }
     }
 
-    public async get(req: Request<IdParams>, res: Response, next: NextFunction) {
+    public async get(req: RequestWithParams<IdParams>, res: Response, next: NextFunction) {
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
             return res.status(400).json({ errors: errors.array() });
