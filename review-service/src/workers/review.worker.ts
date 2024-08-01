@@ -1,14 +1,11 @@
 import { Job, Worker } from 'bullmq';
-import mongoose, { model, Model } from 'mongoose';
-import { IProduct, IProductPopulated, IReview, ProductSchema, QueueReviewDto, ReviewAction, ReviewSchema } from 'shared';
+import mongoose from 'mongoose';
+import { IReview, QueueReviewDto, ReviewAction } from 'shared';
 import RedisClient from 'shared/dist/clients/redis-client';
-
-
+import ReviewProcessingService from '../services/review-processing.service';
 
 const cacheClient = new RedisClient();
-
-const Product: Model<IProduct> = model<IProduct>('Product', ProductSchema);
-const Review: Model<IReview> = model<IReview>('Review', ReviewSchema);
+const reviewProcessing = new ReviewProcessingService();
 
 // Create a singleton worker instance
 let reviewWorker: Worker | undefined;
@@ -26,22 +23,9 @@ function getReviewWorker(): Worker {
                 : review.productId as string;
 
             try {
-                // Get average rating for the product
-                const product = await Product.findOne<IProductPopulated>({ _id: productId, deleted: false }).populate('reviews');
-
-                if (!product) {
-                    console.log(`No product with Id: ${productId}`);
-                    return { success: false, productId, newAverageRating: 0 };
-                }
-
-                if (product.reviews.length <= 0) {
-                    return { success: true, productId, newAverageRating: 0 };
-                }
-
-                // Calculate the average rating
-                // We already have this in the virtual too
-                const totalRating = product.reviews.reduce((acc, review) => acc + review.rating, 0)
-                const newAverageRating = Math.floor((totalRating / product.reviews.length) * 10) / 10;
+                // Calculate and update the new average rating
+                const newAverageRating = await reviewProcessing.calculateProductAverageRating(productId);
+                await reviewProcessing.updateProductAverageRating(productId, newAverageRating);
 
                 // Check if the product exists in cache
                 const cachedProduct = await cacheClient.getProduct(productId);
@@ -50,28 +34,18 @@ function getReviewWorker(): Worker {
                 if (!cachedProduct) {
                     await cacheClient.setProduct(productId, {
                         id: productId,
-                        reviews: product.reviews,
+                        reviews: [review],
                         averageRating: newAverageRating
                     })
                 } else {
-                    // Update the cache review for the product
-                    switch (action) {
-                        case ReviewAction.ADD:
-                            await cacheClient.addReview(productId, review);
-                            break;
-                        case ReviewAction.MODIFIED:
-                            await cacheClient.editReview(productId, reviewId, review)
-                            break;
-                        case ReviewAction.DELETE:
-                            await cacheClient.removeReview(productId, reviewId);
-                            break;
-                    }
+                    // Process the action by the queue
+                    await processQueueAction(action, productId, review, reviewId);
 
                     // Update the cache average rating
                     await cacheClient.updateProductAverageRating(productId, newAverageRating);
+
                     console.log(`Updated average rating for product ${productId}: ${newAverageRating}`);
                 }
-
                 return { success: true, productId, newAverageRating };
             } catch (error) {
                 console.error(`Error processing job ${job.id}:`, error);
@@ -100,6 +74,21 @@ function getReviewWorker(): Worker {
     }
 
     return reviewWorker;
+}
+
+async function processQueueAction(action: ReviewAction, productId: string, review: IReview, reviewId: string) {
+    // Update the cache review for the product
+    switch (action) {
+        case ReviewAction.ADD:
+            await cacheClient.addReview(productId, review);
+            break;
+        case ReviewAction.MODIFIED:
+            await cacheClient.editReview(productId, reviewId, review)
+            break;
+        case ReviewAction.DELETE:
+            await cacheClient.removeReview(productId, reviewId);
+            break;
+    }
 }
 
 export const worker = getReviewWorker();
