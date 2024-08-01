@@ -11,8 +11,7 @@ class ProductService extends BaseService<IProduct, CreateProductDto, typeof Prod
 
     public async getProductWithRating(id: string): Promise<IProductRating | null> {
         try {
-            // Hides the review info
-            const product = await Product.findOne<IProduct>({ _id: id, deleted: false }).select('-reviews').lean();
+            const product = await Product.findOne<IProduct>({ _id: id, deleted: false }).lean();
             if (!product) {
                 throw new HttpException(404, 'No product with this Id found');
             }
@@ -43,7 +42,7 @@ class ProductService extends BaseService<IProduct, CreateProductDto, typeof Prod
     public async getReviewsForProduct(id: string): Promise<IProduct | null> {
         try {
             // Hides the review info
-            return Product.findOne({ _id: id, deleted: false }).populate('reviews').select('reviews').lean();
+            return Product.findOne({ _id: id, deleted: false }).populate('reviews').select('reviews averageRating').lean();
         } catch (error) {
             throw new Error(`Error getting product: ${error}`);
         }
@@ -58,7 +57,7 @@ class ProductService extends BaseService<IProduct, CreateProductDto, typeof Prod
 
             // If no rating cached
             if (!cachedRating) {
-                const product = await Product.findOne<IProductPopulated>(({ id, deleted: false })).populate('reviews');
+                const product = await Product.findOne<IProductPopulated>(({ id, deleted: false })).populate('reviews').exec();
                 if (!product) {
                     throw new HttpException(404, 'No product with this Id found');
                 }

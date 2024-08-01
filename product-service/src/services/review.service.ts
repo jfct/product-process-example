@@ -1,14 +1,12 @@
-import mongoose from "mongoose";
 import { CreateReviewDto, HttpException, IReview, QueueReviewDto, ReviewAction } from "shared";
 import QueueClient from "shared/dist/clients/queue-client";
 import Review from "../models/review.model";
 import BaseService from "./base.service";
-import ProductReviewService from "./product-review.service";
 
 class ReviewService extends BaseService<IReview, CreateReviewDto, typeof Review> {
     private queue: QueueClient = new QueueClient();
 
-    constructor(private productReviewService: ProductReviewService) {
+    constructor() {
         super(Review);
     }
 
@@ -31,9 +29,6 @@ class ReviewService extends BaseService<IReview, CreateReviewDto, typeof Review>
 
         // Add to the queue
         await this.queue.add(queueReview)
-
-        // Update the product
-        await this.productReviewService.updateProductAfterReviewAdded(productId, review.id);
 
         return review;
 
@@ -66,14 +61,6 @@ class ReviewService extends BaseService<IReview, CreateReviewDto, typeof Review>
         if (!review) {
             throw new HttpException(404, 'No review with that Id exists');
         }
-
-        // Validate if product exists
-        const productId = review.productId instanceof mongoose.Types.ObjectId
-            ? review.productId.toString()
-            : review.productId as string;
-
-        // Will update the product to remove the review
-        await this.productReviewService.updateProductAfterReviewRemoved(productId, id);
 
         const queueReview: QueueReviewDto = {
             action: ReviewAction.DELETE,

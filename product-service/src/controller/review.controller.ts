@@ -2,7 +2,6 @@
 import { NextFunction, Response } from "express";
 import { validationResult } from "express-validator";
 import { CreateReviewDto } from "shared";
-import ProductReviewService from "../services/product-review.service";
 import ReviewService from "../services/review.service";
 import { RequestWithBody } from "../types/types";
 import BaseController from "./controller";
@@ -12,7 +11,7 @@ class ReviewController extends BaseController<CreateReviewDto> {
 
     constructor() {
         super();
-        this.service = new ReviewService(new ProductReviewService());
+        this.service = new ReviewService();
     }
 
     public async create(req: RequestWithBody<CreateReviewDto>, res: Response, next: NextFunction) {
